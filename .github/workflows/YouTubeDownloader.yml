@@ -329,12 +329,13 @@ jobs:
       - name: ✂️ Smart Split Large Files
         run: |
           python3 << 'PYEOF'
-          import os, subprocess, glob
+          import os, subprocess, glob, shutil
           
           THRESHOLD_MB = int(os.environ.get('SPLIT_THRESHOLD_MB', '0'))
           THRESHOLD_BYTES = THRESHOLD_MB * 1024 * 1024
           
           temp_dir = './downloads/temp'
+          output_dir = './downloads'
           
           if not os.path.exists(temp_dir):
               print("ℹ️ No temporary files to process")
@@ -359,26 +360,41 @@ jobs:
                   print(f"✂️ Splitting: {filename} ({size_mb:.1f} MB)")
                   print(f"   Part size: {THRESHOLD_MB} MB each")
                   
-                  # Create zip with split
-                  zip_base = os.path.join('./downloads', f"{filename}.zip")
+                  # Move file to output directory first
+                  dest_path = os.path.join(output_dir, filename)
+                  shutil.move(filepath, dest_path)
                   
-                  cmd = [
-                      'zip', '-r', '-s', f'{THRESHOLD_MB}m',
-                      zip_base,
-                      filename
-                  ]
+                  # Create split zip from the output directory
+                  zip_base = os.path.join(output_dir, f"{filename}.zip")
                   
-                  subprocess.run(cmd, cwd=temp_dir, check=True)
+                  # Change to output directory to run zip command
+                  original_cwd = os.getcwd()
+                  os.chdir(output_dir)
                   
-                  # Count parts
-                  parts = sorted(glob.glob(f'{zip_base[:-4]}.z*'))
-                  print(f"✅ Created {len(parts)} part(s):")
-                  for part in parts:
-                      part_size = os.path.getsize(part) / (1024 * 1024)
-                      print(f"   • {os.path.basename(part)} ({part_size:.1f} MB)")
-                  
-                  # Remove original
-                  os.remove(filepath)
+                  try:
+                      cmd = ['zip', '-r', '-s', f'{THRESHOLD_MB}m', f"{filename}.zip", filename]
+                      print(f"   Running: {' '.join(cmd)}")
+                      
+                      result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+                      
+                      # Remove the original file after successful split
+                      os.remove(filename)
+                      
+                      # Count and display parts
+                      parts = sorted(glob.glob(f'{filename}.z*'))
+                      print(f"✅ Created {len(parts)} part(s):")
+                      for part in parts:
+                          part_size = os.path.getsize(part) / (1024 * 1024)
+                          print(f"   • {part} ({part_size:.1f} MB)")
+                      
+                  except subprocess.CalledProcessError as e:
+                      print(f"❌ Split failed: {e}")
+                      print(f"   stdout: {e.stdout}")
+                      print(f"   stderr: {e.stderr}")
+                      # Keep the original file if split fails
+                      print(f"   ℹ️ Keeping original file: {filename}")
+                  finally:
+                      os.chdir(original_cwd)
                   
               else:
                   if THRESHOLD_BYTES == 0:
@@ -387,19 +403,19 @@ jobs:
                       print(f"📁 {filename} ({size_mb:.1f} MB) — under threshold")
                   
                   # Move to downloads folder
-                  os.rename(filepath, os.path.join('./downloads', filename))
+                  shutil.move(filepath, os.path.join(output_dir, filename))
           
           # Clean up temp directory
-          if os.path.exists(temp_dir):
-              import shutil
+          if os.path.exists(temp_dir) and not os.listdir(temp_dir):
               shutil.rmtree(temp_dir)
           
           # List final files
           print(f"\n{'='*60}")
-          print(f"📂 Final files in ./downloads/:")
-          final_files = [f for f in os.listdir('./downloads') if os.path.isfile(os.path.join('./downloads', f))]
+          print(f"📂 Final files in {output_dir}:")
+          final_files = [f for f in os.listdir(output_dir) 
+                        if os.path.isfile(os.path.join(output_dir, f))]
           for f in sorted(final_files):
-              size = os.path.getsize(os.path.join('./downloads', f))
+              size = os.path.getsize(os.path.join(output_dir, f))
               size_mb = size / (1024 * 1024)
               print(f"  • {f} ({size_mb:.1f} MB)")
           
@@ -407,7 +423,6 @@ jobs:
           PYEOF
         env:
           SPLIT_THRESHOLD_MB: ${{ github.event.inputs.split_threshold_mb }}
-
       - name: 📤 Commit and Push to Repository
         run: |
           BRANCH="${GITHUB_REF_NAME}"
