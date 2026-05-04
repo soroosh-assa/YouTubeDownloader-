@@ -558,20 +558,27 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          # Pull latest changes first to avoid conflicts
+          # First, stash any existing changes
+          echo "🔄 Stashing any existing changes..."
+          git stash --include-untracked || true
+          
+          # Pull latest changes
           echo "🔄 Pulling latest changes from remote..."
-          git pull --rebase origin "$BRANCH" || {
-            echo "⚠️ Rebase failed, trying merge..."
-            git pull origin "$BRANCH" --no-rebase
-          }
+          git pull --rebase origin "$BRANCH" || git pull origin "$BRANCH" --no-rebase
+          
+          # Restore stashed changes
+          echo "🔄 Restoring stashed changes..."
+          git stash pop || true
           
           # Show what we have
           echo "📂 Files in downloads:"
           find ./downloads -type f -exec ls -lh {} \; 2>/dev/null || echo "No downloads directory"
           
           # Stage all files
+          echo "📦 Staging all files..."
           git add ./downloads/ Links.md
           
+          # Check if there's anything to commit
           if git diff --staged --quiet; then
             echo "ℹ️ No changes to commit"
             exit 0
@@ -581,62 +588,20 @@ jobs:
           mapfile -t STAGED_FILES < <(git diff --staged --name-only)
           TOTAL_FILES=${#STAGED_FILES[@]}
           
-          echo "📦 Found $TOTAL_FILES file(s) to upload"
+          echo "📦 Found $TOTAL_FILES file(s) to commit"
           echo "Files:"
           printf '  • %s\n' "${STAGED_FILES[@]}"
           
-          # Reset staging
-          git reset HEAD ./downloads/ Links.md
+          # Commit all files at once
+          echo "💾 Committing all files..."
+          git commit -m "chore: add YouTube downloads [skip ci]"
           
-          # First commit and push Links.md
-          if [[ " ${STAGED_FILES[@]} " =~ " Links.md " ]]; then
-            echo "📝 Committing Links.md..."
-            git add Links.md
-            git commit -m "docs: update download links [skip ci]"
-            git push origin "HEAD:$BRANCH" || {
-              echo "⚠️ Push failed, pulling and retrying..."
-              git pull --rebase origin "$BRANCH" || git pull origin "$BRANCH" --no-rebase
-              git push origin "HEAD:$BRANCH"
-            }
-            echo "✅ Links.md pushed successfully"
-          fi
-          
-          # Then commit download files in batches
-          BATCH_SIZE=5
-          DOWNLOAD_FILES=()
-          for file in "${STAGED_FILES[@]}"; do
-            if [[ "$file" == ./downloads/* ]]; then
-              DOWNLOAD_FILES+=("$file")
-            fi
-          done
-          
-          TOTAL_DOWNLOADS=${#DOWNLOAD_FILES[@]}
-          
-          if [ $TOTAL_DOWNLOADS -gt 0 ]; then
-            for (( i=0; i<TOTAL_DOWNLOADS; i+=BATCH_SIZE )); do
-              BATCH_NUM=$((i / BATCH_SIZE + 1))
-              END=$((i + BATCH_SIZE))
-              [[ $END -gt $TOTAL_DOWNLOADS ]] && END=$TOTAL_DOWNLOADS
-              
-              echo "🚀 Uploading batch $BATCH_NUM [$((i+1))–${END} of $TOTAL_DOWNLOADS]"
-              
-              # Add files for this batch
-              for (( j=i; j<END; j++ )); do
-                git add "${DOWNLOAD_FILES[$j]}"
-              done
-              
-              git commit -m "chore: add YouTube content batch $BATCH_NUM [skip ci]"
-              
-              # Pull and push with retry
-              git pull --rebase origin "$BRANCH" || git pull origin "$BRANCH" --no-rebase
-              git push origin "HEAD:$BRANCH" || {
-                echo "⚠️ Push failed for batch $BATCH_NUM, retrying..."
-                git pull --rebase origin "$BRANCH" || git pull origin "$BRANCH" --no-rebase
-                git push origin "HEAD:$BRANCH"
-              }
-              
-              echo "✅ Batch $BATCH_NUM uploaded"
-            done
+          # Push with retry
+          echo "🚀 Pushing to remote..."
+          if ! git push origin "HEAD:$BRANCH"; then
+            echo "⚠️ Push failed, pulling and retrying..."
+            git pull --rebase origin "$BRANCH" || git pull origin "$BRANCH" --no-rebase
+            git push origin "HEAD:$BRANCH"
           fi
           
           echo "🎉 All files successfully uploaded to $BRANCH"
