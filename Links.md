@@ -1,17 +1,18 @@
 # 📥 YouTube Downloads
 
-## 📅 2026-05-07 13:13:58
+## 📅 2026-05-07 14:05:05
 
-### 🎬 Coccolino Deep - Seventeen
-- **Source**: [https://www.youtube.com/watch?v=JRjwF8OWNck](https://www.youtube.com/watch?v=JRjwF8OWNck)
+### 🎬 Izzamuzzic | Best Tracks & Remixes | Flawless Mix [1hr]
+- **Source**: [https://www.youtube.com/watch?v=NUTeQkyoFL0](https://www.youtube.com/watch?v=NUTeQkyoFL0)
 - **Type**: Video
-- **Quality**: 720p
-- **Total Size**: 226.4 MB
+- **Quality**: 1080p
+- **Total Size**: 304.0 MB
 
 **📦 Parts (Split Archive):**
-1. [📥 Coccolino_Deep_-_Seventeen_JRjwF8OWNck_720p.mp4.z01](https://raw.githubusercontent.com/soroosh-assa/YouTubeDownloader-/main/downloads/Coccolino_Deep_-_Seventeen_JRjwF8OWNck_720p.mp4.z01) (98.0 MB)
-2. [📥 Coccolino_Deep_-_Seventeen_JRjwF8OWNck_720p.mp4.z02](https://raw.githubusercontent.com/soroosh-assa/YouTubeDownloader-/main/downloads/Coccolino_Deep_-_Seventeen_JRjwF8OWNck_720p.mp4.z02) (98.0 MB)
-3. [📥 Coccolino_Deep_-_Seventeen_JRjwF8OWNck_720p.mp4.zip](https://raw.githubusercontent.com/soroosh-assa/YouTubeDownloader-/main/downloads/Coccolino_Deep_-_Seventeen_JRjwF8OWNck_720p.mp4.zip) (24.5 MB)
+1. [📥 Izzamuzzic___Best_Tracks___Remixes___Flawless_Mix__1hr_NUTeQkyoFL0_1080p.mp4.z01](https://raw.githubusercontent.com/soroosh-assa/YouTubeDownloader-/main/downloads/Izzamuzzic___Best_Tracks___Remixes___Flawless_Mix__1hr_NUTeQkyoFL0_1080p.mp4.z01) (95.0 MB)
+2. [📥 Izzamuzzic___Best_Tracks___Remixes___Flawless_Mix__1hr_NUTeQkyoFL0_1080p.mp4.z02](https://raw.githubusercontent.com/soroosh-assa/YouTubeDownloader-/main/downloads/Izzamuzzic___Best_Tracks___Remixes___Flawless_Mix__1hr_NUTeQkyoFL0_1080p.mp4.z02) (95.0 MB)
+3. [📥 Izzamuzzic___Best_Tracks___Remixes___Flawless_Mix__1hr_NUTeQkyoFL0_1080p.mp4.z03](https://raw.githubusercontent.com/soroosh-assa/YouTubeDownloader-/main/downloads/Izzamuzzic___Best_Tracks___Remixes___Flawless_Mix__1hr_NUTeQkyoFL0_1080p.mp4.z03) (95.0 MB)
+4. [📥 Izzamuzzic___Best_Tracks___Remixes___Flawless_Mix__1hr_NUTeQkyoFL0_1080p.mp4.zip](https://raw.githubusercontent.com/soroosh-assa/YouTubeDownloader-/main/downloads/Izzamuzzic___Best_Tracks___Remixes___Flawless_Mix__1hr_NUTeQkyoFL0_1080p.mp4.zip) (8.3 MB)
 
 > 💡 **How to extract:** Download all parts and use [7-Zip](https://www.7-zip.org/) or `zip -s- {filename}.zip -O {filename}` to combine
 
